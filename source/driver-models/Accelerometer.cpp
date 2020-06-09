@@ -229,7 +229,7 @@ void Accelerometer::updateGesture()
         if (force > ACCELEROMETER_2G_THRESHOLD && !shake.impulse_2)
         {
             Event e(DEVICE_ID_GESTURE, ACCELEROMETER_EVT_2G);
-            shake.impulse_2 = 1;            
+            shake.impulse_2 = 1;
         }
         if (force > ACCELEROMETER_3G_THRESHOLD && !shake.impulse_3)
         {
@@ -414,6 +414,16 @@ Sample3D Accelerometer::getSample()
 }
 
 /**
+ * Reads the last temperature value stored, and in the coordinate system defined in the constructor.
+ * @return The temperature measured, in degrees C.
+ */
+int16_t Accelerometer::getTemperature()
+{
+    requestUpdate();
+    return temp;
+}
+
+/**
  * reads the value of the x axis from the latest update retrieved from the accelerometer,
  * usingthe default coordinate system as specified in the constructor.
  *
@@ -554,4 +564,3 @@ uint16_t Accelerometer::getGesture()
 Accelerometer::~Accelerometer()
 {
 }
-
