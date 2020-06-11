@@ -228,6 +228,13 @@ namespace codal
           */
         Sample3D getSample();
 
+
+        /**
+         * Reads the last temperature value stored, and in the coordinate system defined in the constructor.
+         * @return The temperature measured, in degrees C.
+         */
+        int16_t getTemperature()
+
         /**
           * reads the value of the x axis from the latest update retrieved from the accelerometer,
           * using the default coordinate system as specified in the constructor.
