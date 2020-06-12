@@ -414,16 +414,6 @@ Sample3D Accelerometer::getSample()
 }
 
 /**
- * Reads the last temperature value stored, and in the coordinate system defined in the constructor.
- * @return The temperature measured, in degr.
- */
-int Accelerometer::getTemperature()
-{
-    requestUpdate();
-    return temp;
-}
-
-/**
  * reads the value of the x axis from the latest update retrieved from the accelerometer,
  * usingthe default coordinate system as specified in the constructor.
  *

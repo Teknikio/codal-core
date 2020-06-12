@@ -58,6 +58,12 @@ int MPU6050::requestUpdate()
     return DEVICE_OK;
 }
 
+int MPU6050::getTemperature()
+{
+    updateSample();
+    return temp;
+}
+
 int MPU6050::updateSample()
 {
     int result;
