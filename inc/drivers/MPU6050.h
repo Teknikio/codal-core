@@ -71,6 +71,8 @@ namespace codal{
           */
         int updateSample();
 
+        int getTemperature();
+
         /**
          * Poll to see if new data is available from the hardware. If so, update it.
          * n.b. it is not necessary to explicitly call this function to update data
