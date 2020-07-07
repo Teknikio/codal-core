@@ -118,6 +118,11 @@ int FXOS8700Accelerometer::requestUpdate()
     return DEVICE_OK;
 }
 
+int FXOS8700Accelerometer::getTemperature()
+{
+    return 1000;
+}
+
 /*
  * Callback function, invoked whenever new data is available from the hardware.
  */
