@@ -177,7 +177,7 @@ namespace codal
           * @endcode
           */
         int whoAmI();
-
+        int getTemperature();
         /**
           * Reads the accelerometer data from the latest update retrieved from the accelerometer.
           * Data is provided in ENU format, relative to the device package (and makes no attempt

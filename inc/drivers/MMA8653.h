@@ -133,6 +133,7 @@ namespace codal
           */
         int configure();
 
+        int getTemperature();
         /**
           * Reads the acceleration data from the accelerometer, and stores it in our buffer.
           * This only happens if the accelerometer indicates that it has new data via int1.
