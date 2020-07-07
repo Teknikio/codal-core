@@ -216,7 +216,8 @@ namespace codal
           * @return DEVICE_OK on success, DEVICE_I2C_ERROR if the accelerometer could not be configured.
           */
         int configure();
-
+        
+        int getTemperature();
         /**
           * Reads the acceleration data from the accelerometer, and stores it in our buffer.
           * This only happens if the accelerometer indicates that it has new data via int1.
