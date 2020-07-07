@@ -216,6 +216,10 @@ int FXOS8700::whoAmI()
     return (int)data;
 }
 
+int FXOS8700::getTemperature()
+{
+    return 1000;
+}
 /**
   * Reads the sensor ata from the FXSO8700, and stores it in our buffer.
   * This only happens if the device indicates that it has new data via int1.

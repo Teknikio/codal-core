@@ -155,6 +155,11 @@ int MMA8653::whoAmI()
     return (int)data;
 }
 
+int MMA8653::getTemperature()
+{
+    return 1000;
+}
+
 /**
   * Reads the acceleration data from the accelerometer, and stores it in our buffer.
   * This only happens if the accelerometer indicates that it has new data via int1.

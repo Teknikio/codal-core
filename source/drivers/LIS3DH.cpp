@@ -179,6 +179,10 @@ int LIS3DH::requestUpdate()
     return DEVICE_OK;
 }
 
+int LIS3DH::getTemperature()
+{
+    return 1000;
+}
 /**
   * Reads the acceleration data from the accelerometer, and stores it in our buffer.
   * This only happens if the accelerometer indicates that it has new data via int1.
