@@ -450,6 +450,22 @@ int Accelerometer::getZ()
 }
 
 /**
+ * Poll to see if new data is available from the hardware. If so, update it.
+ * n.b. it is not necessary to explicitly call this function to update data
+ * (it normally happens in the background when the scheduler is idle), but a check is performed
+ * if the user explicitly requests up to date data.
+ *
+ * @return DEVICE_OK on success, DEVICE_I2C_ERROR if the update fails.
+ *
+ * @note This method should be overidden by the hardware driver to implement the requested
+ * changes in hardware.
+ */
+int Accelerometer::getTemperature()
+{
+    return DEVICE_NOT_SUPPORTED;
+}
+
+/**
   * Provides a rotation compensated pitch of the device, based on the latest update retrieved from the accelerometer.
   *
   * @return The pitch of the device, in degrees.
