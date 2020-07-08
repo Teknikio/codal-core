@@ -71,7 +71,7 @@ namespace codal{
           */
         int updateSample();
 
-        int getTemperature();
+        virtual int getTemperature();
 
         /**
          * Poll to see if new data is available from the hardware. If so, update it.
