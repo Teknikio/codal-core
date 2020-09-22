@@ -264,6 +264,10 @@ namespace codal
          */
         virtual int setBrightness(int b);
 
+        virtual int getWidth();
+
+        virtual int getHeight();
+
 
         /**
          * Destructor for CodalDisplay, where we deregister this instance from the array of system components.
