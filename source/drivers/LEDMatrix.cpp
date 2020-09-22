@@ -294,6 +294,16 @@ void LEDMatrix::setEnable(bool enableDisplay)
     }
 }
 
+int LEDMatrix::getWidth()
+{
+    return 6;
+}
+
+int LEDMatrix::getHeight()
+{
+    return 5;
+}
+
 /**
   * Enables the display, should only be called if the display is disabled.
   *
