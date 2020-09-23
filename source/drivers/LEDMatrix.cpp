@@ -50,7 +50,7 @@ LEDMatrix::LEDMatrix(const MatrixMap &map, uint16_t id) : Display(map.width, map
     this->greyscaleBitMsk = 0x01;
     this->timingCount = 0;
     this->setBrightness(LED_MATRIX_DEFAULT_BRIGHTNESS);
-    this->mode = DISPLAY_MODE_BLACK_AND_WHITE;
+    this->mode = DISPLAY_MODE_CHARLIEPLEX;
     this->strobeRow = 0;
 
     if(EventModel::defaultEventBus)
@@ -86,6 +86,10 @@ void LEDMatrix::periodicCallback()
         timingCount = 0;
         renderGreyscale();
     }
+
+    if ( mode == DISPLAY_MODE_CHARLIEPLEX )
+        renderCharlie();
+    
 }
 
 void LEDMatrix::renderFinish()
@@ -96,6 +100,189 @@ void LEDMatrix::renderFinish()
 void LEDMatrix::onTimeoutEvent(Event)
 {
     renderFinish();
+}
+
+void LEDMatrix::renderCharlie()
+{
+    //Reset pins
+    // nrf_gpio_cfg_input(matrixMap.columnPins[0],NRF_GPIO_PIN_NOPULL);
+	// nrf_gpio_cfg_input(matrixMap.columnPins[1],NRF_GPIO_PIN_NOPULL);
+	// nrf_gpio_cfg_input(matrixMap.columnPins[2],NRF_GPIO_PIN_NOPULL);
+	// nrf_gpio_cfg_input(matrixMap.columnPins[3],NRF_GPIO_PIN_NOPULL);
+	// nrf_gpio_cfg_input(matrixMap.columnPins[4],NRF_GPIO_PIN_NOPULL);
+	// nrf_gpio_cfg_input(BLUEBIRD_LED_6,NRF_GPIO_PIN_NOPULL);
+
+    for (int i = 0; i < matrixMap.columns; i++)
+    {
+        matrixMap.columnPins[i]->getDigitalValue();
+    }
+}
+
+void LEDMatrix:: setLedMatrix(int row,int column)
+{
+    Pin pin_high;
+    Pin pin_low;
+    //matrixMap.columnPins[i]
+
+    if(row == 1   && column == 1)
+    {
+    pin_high  = matrixMap.columnPins[5];
+    pin_low   = matrixMap.columnPins[0];
+    }
+    else if(row == 1 && column == 2)
+    {
+    pin_high  = matrixMap.columnPins[5];
+    pin_low   = matrixMap.columnPins[1];
+    }
+    else if(row == 1 && column == 3)
+    {
+    pin_high  = matrixMap.columnPins[5];
+    pin_low   = matrixMap.columnPins[2];
+    }
+    else if(row == 1 && column == 4)
+    {
+    pin_high  = matrixMap.columnPins[5];
+    pin_low   = matrixMap.columnPins[3];
+    }
+    else if(row == 1 && column == 5)
+    {
+    pin_high  = matrixMap.columnPins[5];
+    pin_low   = matrixMap.columnPins[4];
+    }
+    else if(row == 1 && column == 6)
+    {
+    pin_high  = matrixMap.columnPins[4];
+    pin_low   = matrixMap.columnPins[5];
+    }
+    else if(row == 2 && column == 1)
+    {
+    pin_high  = matrixMap.columnPins[4];
+    pin_low   = matrixMap.columnPins[0];
+    }
+    else if(row == 2 && column == 2)
+    {
+    pin_high  = matrixMap.columnPins[4];
+    pin_low   = matrixMap.columnPins[1];
+    }
+    else if(row == 2 && column == 3)
+    {
+    pin_high  = matrixMap.columnPins[4];
+    pin_low   = matrixMap.columnPins[2];
+    }
+    else if(row == 2 && column == 4)
+    {
+    pin_high  = matrixMap.columnPins[4];
+    pin_low   = matrixMap.columnPins[3];
+    }
+    else if(row == 2 && column == 5)
+    {
+    pin_high  = matrixMap.columnPins[3];
+    pin_low   = matrixMap.columnPins[4];
+    }
+    else if(row == 2 && column == 6)
+    {
+    pin_high  = matrixMap.columnPins[3];
+    pin_low   = matrixMap.columnPins[5];
+    }
+    else if(row == 3 && column == 1)
+    {
+    pin_high  = matrixMap.columnPins[3];
+    pin_low   = matrixMap.columnPins[0];
+    }
+    else if(row == 3 && column == 2)
+    {
+    pin_high  = matrixMap.columnPins[3];
+    pin_low   = matrixMap.columnPins[1];
+    }
+    else if(row == 3 && column == 3)
+    {
+    pin_high  = matrixMap.columnPins[3];
+    pin_low   = matrixMap.columnPins[2];
+    }
+    else if(row == 3 && column == 4)
+    {
+    pin_high  = matrixMap.columnPins[2];
+    pin_low   = matrixMap.columnPins[3];
+    }
+    else if(row == 3 && column == 5)
+    {
+    pin_high  = matrixMap.columnPins[2];
+    pin_low   = matrixMap.columnPins[4];
+    }
+    else if(row == 3 && column == 6)
+    {
+    pin_high  = matrixMap.columnPins[2];
+    pin_low   = matrixMap.columnPins[5];
+    }
+    else if(row == 4 && column == 1)
+    {
+    pin_high  = matrixMap.columnPins[2];
+    pin_low   = matrixMap.columnPins[0];
+    }
+    else if(row == 4 && column == 2)
+    {
+    pin_high  = matrixMap.columnPins[2];
+    pin_low   = matrixMap.columnPins[1];
+    }
+    else if(row == 4 && column == 3)
+    {
+    pin_high  = matrixMap.columnPins[1];
+    pin_low   = matrixMap.columnPins[2];
+    }
+    else if(row == 4 && column == 4)
+    {
+    pin_high  = matrixMap.columnPins[1];
+    pin_low   = matrixMap.columnPins[3];
+    }
+    else if(row == 4 && column == 5)
+    {
+    pin_high  = matrixMap.columnPins[1];
+    pin_low   = matrixMap.columnPins[4];
+    }
+    else if(row == 4 && column == 6)
+    {
+    pin_high  = matrixMap.columnPins[1];
+    pin_low   = matrixMap.columnPins[5];
+    }
+    else if(row == 5 && column == 1)
+    {
+    pin_high  = matrixMap.columnPins[1];
+    pin_low   = matrixMap.columnPins[0];
+    }
+    else if(row == 5 && column == 2)
+    {
+    pin_high  = matrixMap.columnPins[0];
+    pin_low   = matrixMap.columnPins[1];
+    }
+    else if(row == 5 && column == 3)
+    {
+    pin_high  = matrixMap.columnPins[0];
+    pin_low   = matrixMap.columnPins[2];
+    }
+    else if(row == 5 && column == 4)
+    {
+    pin_high  = matrixMap.columnPins[0];
+    pin_low   = matrixMap.columnPins[3];
+    }
+    else if(row == 5 && column == 5)
+    {
+    pin_high  = matrixMap.columnPins[0];
+    pin_low   = matrixMap.columnPins[4];
+    }
+    else if(row == 5 && column == 6)
+    {
+    pin_high  = matrixMap.columnPins[0];
+    pin_low   = matrixMap.columnPins[5];
+    }
+
+    if( !pin_low  && !pin_high ){
+        pin_high->setDigitalValue(1);
+        pin_low->getDigitalValue();
+        // nrf_gpio_cfg_output(pin_low);
+        // nrf_gpio_cfg_output(pin_high);
+        // nrf_gpio_pin_write(pin_high, 1);
+        // nrf_gpio_pin_write(pin_low, 0);
+    }
 }
 
 void LEDMatrix::render()

@@ -74,7 +74,8 @@ namespace codal
     enum DisplayMode {
         DISPLAY_MODE_BLACK_AND_WHITE,
         DISPLAY_MODE_GREYSCALE,
-        DISPLAY_MODE_BLACK_AND_WHITE_LIGHT_SENSE
+        DISPLAY_MODE_BLACK_AND_WHITE_LIGHT_SENSE,
+        DISPLAY_MODE_CHARLIEPLEX
     };
 
     //
@@ -154,6 +155,9 @@ namespace codal
          */
         void render();
 
+        void renderCharlie();
+
+        void setLedMatrix(int row,int column);
         /**
          * Renders the current image, and drops the fourth frame to allow for
          * sensors that require the display to operate.
