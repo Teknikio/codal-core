@@ -104,6 +104,33 @@ void LEDMatrix::onTimeoutEvent(Event)
 
 void LEDMatrix::renderCharlie()
 {
+
+    // strobeRow++;
+    // if(strobeRow == 4)
+    //     strobeRow = 0;
+    if (image.getBitmap()[strobeColumn*width + strobeRow])
+    //if(ledpattern[strobeRow][strobeColumn] == 1)
+	{
+		setLedMatrix(strobeRow+1,strobeColumn+1);
+	}
+	
+	if( strobeRow < 4)
+	{
+		strobeRow++;
+	}
+	else
+	{
+		strobeRow = 0;
+		if( strobeColumn < 6)
+		{
+			strobeColumn++;
+		}
+		else
+		{
+			
+			strobeColumn = 0;
+		}
+	}
     //Reset pins
     // nrf_gpio_cfg_input(matrixMap.columnPins[0],NRF_GPIO_PIN_NOPULL);
 	// nrf_gpio_cfg_input(matrixMap.columnPins[1],NRF_GPIO_PIN_NOPULL);
@@ -111,17 +138,17 @@ void LEDMatrix::renderCharlie()
 	// nrf_gpio_cfg_input(matrixMap.columnPins[3],NRF_GPIO_PIN_NOPULL);
 	// nrf_gpio_cfg_input(matrixMap.columnPins[4],NRF_GPIO_PIN_NOPULL);
 	// nrf_gpio_cfg_input(BLUEBIRD_LED_6,NRF_GPIO_PIN_NOPULL);
-
-    for (int i = 0; i < matrixMap.columns; i++)
-    {
-        matrixMap.columnPins[i]->getDigitalValue();
-    }
 }
 
 void LEDMatrix:: setLedMatrix(int row,int column)
 {
     Pin *pin_high;
     Pin *pin_low;
+
+    for (int i = 0; i < matrixMap.columns; i++)
+    {
+        matrixMap.columnPins[i]->getDigitalValue();
+    }
     //matrixMap.columnPins[i]
 
     if(row == 1   && column == 1)
@@ -481,15 +508,15 @@ void LEDMatrix::setEnable(bool enableDisplay)
     }
 }
 
-int LEDMatrix::getWidth()
-{
-    return 6;
-}
+// int LEDMatrix::getWidth()
+// {
+//     return 6;
+// }
 
-int LEDMatrix::getHeight()
-{
-    return 5;
-}
+// int LEDMatrix::getHeight()
+// {
+//     return 5;
+// }
 
 /**
   * Enables the display, should only be called if the display is disabled.

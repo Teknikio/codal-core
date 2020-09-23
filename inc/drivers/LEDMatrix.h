@@ -124,6 +124,7 @@ namespace codal
     class LEDMatrix : public Display
     {
         uint8_t strobeRow;
+        uint8_t strobeColumn;
         uint8_t rotation;
         uint8_t mode;
         uint8_t greyscaleBitMsk;
@@ -268,9 +269,9 @@ namespace codal
          */
         virtual int setBrightness(int b);
 
-        virtual int getWidth();
+        // virtual int getWidth();
 
-        virtual int getHeight();
+        // virtual int getHeight();
 
 
         /**
