@@ -120,8 +120,8 @@ void LEDMatrix::renderCharlie()
 
 void LEDMatrix:: setLedMatrix(int row,int column)
 {
-    Pin pin_high;
-    Pin pin_low;
+    Pin *pin_high;
+    Pin *pin_low;
     //matrixMap.columnPins[i]
 
     if(row == 1   && column == 1)
