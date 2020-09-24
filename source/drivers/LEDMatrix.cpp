@@ -135,7 +135,7 @@ void LEDMatrix:: setLedMatrix(int row,int column)
 
     for (int i = 0; i < matrixMap.columns; i++)
     {
-        matrixMap.columnPins[i]->getDigitalValue();
+        matrixMap.columnPins[i]->setDigitalValue(1);
     }
     //matrixMap.columnPins[i]
 
