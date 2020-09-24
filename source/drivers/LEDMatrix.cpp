@@ -104,40 +104,28 @@ void LEDMatrix::onTimeoutEvent(Event)
 
 void LEDMatrix::renderCharlie()
 {
-
-    // strobeRow++;
-    // if(strobeRow == 4)
-    //     strobeRow = 0;
-    if (image.getBitmap()[strobeColumn*width + strobeRow])
-    //if(ledpattern[strobeRow][strobeColumn] == 1)
-	{
-		setLedMatrix(strobeRow+1,strobeColumn+1);
-	}
+    setLedMatrix(1,1);
+    // if (image.getBitmap()[strobeColumn*width + strobeRow])
+	// {
+	// 	setLedMatrix(strobeRow+1,strobeColumn+1);
+	// }
 	
-	if( strobeRow < 4)
-	{
-		strobeRow++;
-	}
-	else
-	{
-		strobeRow = 0;
-		if( strobeColumn < 6)
-		{
-			strobeColumn++;
-		}
-		else
-		{
-			
-			strobeColumn = 0;
-		}
-	}
-    //Reset pins
-    // nrf_gpio_cfg_input(matrixMap.columnPins[0],NRF_GPIO_PIN_NOPULL);
-	// nrf_gpio_cfg_input(matrixMap.columnPins[1],NRF_GPIO_PIN_NOPULL);
-	// nrf_gpio_cfg_input(matrixMap.columnPins[2],NRF_GPIO_PIN_NOPULL);
-	// nrf_gpio_cfg_input(matrixMap.columnPins[3],NRF_GPIO_PIN_NOPULL);
-	// nrf_gpio_cfg_input(matrixMap.columnPins[4],NRF_GPIO_PIN_NOPULL);
-	// nrf_gpio_cfg_input(BLUEBIRD_LED_6,NRF_GPIO_PIN_NOPULL);
+	// if( strobeRow < 4)
+	// {
+	// 	strobeRow++;
+	// }
+	// else
+	// {
+	// 	strobeRow = 0;
+	// 	if( strobeColumn < 6)
+	// 	{
+	// 		strobeColumn++;
+	// 	}
+	// 	else
+	// 	{
+	// 		strobeColumn = 0;
+	// 	}
+	// }
 }
 
 void LEDMatrix:: setLedMatrix(int row,int column)
