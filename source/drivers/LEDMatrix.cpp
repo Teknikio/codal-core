@@ -104,28 +104,27 @@ void LEDMatrix::onTimeoutEvent(Event)
 
 void LEDMatrix::renderCharlie()
 {
-    setLedMatrix(1,1);
-    // if (image.getBitmap()[strobeColumn*width + strobeRow])
-	// {
-	// 	setLedMatrix(strobeRow+1,strobeColumn+1);
-	// }
+    if (image.getBitmap()[strobeColumn*width + strobeRow])
+	{
+		setLedMatrix(strobeRow+1,strobeColumn+1);
+	}
 	
-	// if( strobeRow < 4)
-	// {
-	// 	strobeRow++;
-	// }
-	// else
-	// {
-	// 	strobeRow = 0;
-	// 	if( strobeColumn < 6)
-	// 	{
-	// 		strobeColumn++;
-	// 	}
-	// 	else
-	// 	{
-	// 		strobeColumn = 0;
-	// 	}
-	// }
+	if( strobeRow < 4)
+	{
+		strobeRow++;
+	}
+	else
+	{
+		strobeRow = 0;
+		if( strobeColumn < 6)
+		{
+			strobeColumn++;
+		}
+		else
+		{
+			strobeColumn = 0;
+		}
+	}
 }
 
 void LEDMatrix:: setLedMatrix(int row,int column)
@@ -133,9 +132,10 @@ void LEDMatrix:: setLedMatrix(int row,int column)
     Pin *pin_high;
     Pin *pin_low;
 
+    // Reset all pins
     for (int i = 0; i < matrixMap.columns; i++)
     {
-        matrixMap.columnPins[i]->setDigitalValue(1);
+        matrixMap.columnPins[i]->getDigitalValue(PullMode.None);
     }
     //matrixMap.columnPins[i]
 
@@ -290,14 +290,14 @@ void LEDMatrix:: setLedMatrix(int row,int column)
     pin_low   = matrixMap.columnPins[5];
     }
 
-    if( !pin_low  && !pin_high ){
+    //if( !pin_low  && !pin_high ){
         pin_high->setDigitalValue(1);
-        pin_low->getDigitalValue();
+        pin_low->getDigitalValue(PullMode.None);
         // nrf_gpio_cfg_output(pin_low);
         // nrf_gpio_cfg_output(pin_high);
         // nrf_gpio_pin_write(pin_high, 1);
         // nrf_gpio_pin_write(pin_low, 0);
-    }
+    //}
 }
 
 void LEDMatrix::render()
