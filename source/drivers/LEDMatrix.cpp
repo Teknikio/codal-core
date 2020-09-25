@@ -135,7 +135,7 @@ void LEDMatrix:: setLedMatrix(int row,int column)
     // Reset all pins
     for (int i = 0; i < matrixMap.columns; i++)
     {
-        matrixMap.columnPins[i]->getDigitalValue(0);
+        matrixMap.columnPins[i]->getDigitalValue(PullMode::None);
     }
     //matrixMap.columnPins[i]
 
@@ -292,7 +292,7 @@ void LEDMatrix:: setLedMatrix(int row,int column)
 
     //if( !pin_low  && !pin_high ){
         pin_high->setDigitalValue(1);
-        pin_low->getDigitalValue(0);
+        pin_low->getDigitalValue(PullMode::None);
         // nrf_gpio_cfg_output(pin_low);
         // nrf_gpio_cfg_output(pin_high);
         // nrf_gpio_pin_write(pin_high, 1);
