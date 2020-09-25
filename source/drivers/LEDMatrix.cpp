@@ -135,7 +135,7 @@ void LEDMatrix:: setLedMatrix(int row,int column)
     // Reset all pins
     for (int i = 0; i < matrixMap.columns; i++)
     {
-        matrixMap.columnPins[i]->getDigitalValue(PullNone);
+        matrixMap.columnPins[i]->getDigitalValue(None);
     }
     //matrixMap.columnPins[i]
 
