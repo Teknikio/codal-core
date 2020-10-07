@@ -130,7 +130,6 @@ void LEDMatrix::onTimeoutEvent(Event)
 
 void LEDMatrix::renderCharlie()
 {
-    return;
 	if(ledpattern[row_index][col_index] == 1)
 	{
 		setLedMatrix(row_index+1,col_index+1);
