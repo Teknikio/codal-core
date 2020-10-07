@@ -99,7 +99,13 @@ void LEDMatrix::renderFinish()
 
 void LEDMatrix::onTimeoutEvent(Event)
 {
-    renderFinish();
+    if (mode == DISPLAY_MODE_CHARLIEPLEX){
+        renderCharlie();
+    }
+    else {
+        renderFinish();
+    }
+    
 }
 
 void LEDMatrix::renderCharlie()
@@ -125,6 +131,7 @@ void LEDMatrix::renderCharlie()
 			strobeColumn = 0;
 		}
 	}
+    system_timer_event_after_us(600, id, LED_MATRIX_EVT_FRAME_TIMEOUT);
 }
 
 void LEDMatrix:: setLedMatrix(int row,int column)
@@ -290,14 +297,11 @@ void LEDMatrix:: setLedMatrix(int row,int column)
     pin_low   = matrixMap.columnPins[5];
     }
 
-    //if( !pin_low  && !pin_high ){
-        pin_high->setDigitalValue(1);
-        pin_low->setDigitalValue(0);
-        // nrf_gpio_cfg_output(pin_low);
-        // nrf_gpio_cfg_output(pin_high);
-        // nrf_gpio_pin_write(pin_high, 1);
-        // nrf_gpio_pin_write(pin_low, 0);
-    //}
+    pin_high->setDigitalValue(1);
+    pin_low->setDigitalValue(0);
+
+    
+
 }
 
 void LEDMatrix::render()

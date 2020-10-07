@@ -88,7 +88,7 @@ int Button::buttonActive()
 }
 
 /**
-  * periodic callback from Device system timer.
+  * periodic callback from Device system .
   *
   * Check for state change for this button, and fires various events on a state change.
   */
