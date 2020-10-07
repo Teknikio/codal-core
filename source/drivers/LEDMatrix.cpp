@@ -31,6 +31,27 @@ DEALINGS IN THE SOFTWARE.
 #include "CodalFiber.h"
 #include "ErrorNo.h"
 
+#define ROW_SIZE			5
+#define COLUMN_SIZE			6
+int		row_index=0;
+int		col_index=0;
+uint8_t ledpattern[ROW_SIZE][COLUMN_SIZE] = {
+  {1,1,1,1,1,1},
+  {1,1,1,1,1,1},
+  {0,0,1,1,0,0},
+  {0,0,1,1,0,0},
+  {0,0,1,1,0,0}
+};
+
+
+uint8_t Tpattern[ROW_SIZE][COLUMN_SIZE] = {
+  {1,1,1,1,1,1},
+  {1,1,1,1,1,1},
+  {0,0,1,1,0,0},
+  {0,0,1,1,0,0},
+  {0,0,1,1,0,0}
+};
+
 using namespace codal;
 
 const int greyScaleTimings[LED_MATRIX_GREYSCALE_BIT_DEPTH] = {1, 23, 70, 163, 351, 726, 1476, 2976};
@@ -105,32 +126,54 @@ void LEDMatrix::onTimeoutEvent(Event)
     else {
         renderFinish();
     }
-    
 }
 
 void LEDMatrix::renderCharlie()
 {
-    if (image.getBitmap()[strobeColumn*width + strobeRow])
+	if(ledpattern[row_index][col_index] == 1)
 	{
-		setLedMatrix(strobeRow+1,strobeColumn+1);
+		setLedMatrix(row_index+1,col_index+1);
 	}
 	
-	if( strobeRow < 4)
+	if( row_index < (ROW_SIZE - 1))
 	{
-		strobeRow++;
+		row_index++;
 	}
 	else
 	{
-		strobeRow = 0;
-		if( strobeColumn < 6)
+		
+		row_index = 0;
+		if( col_index<(COLUMN_SIZE -1))
 		{
-			strobeColumn++;
+			col_index++;
 		}
 		else
 		{
-			strobeColumn = 0;
+			
+			col_index = 0;
 		}
 	}
+    // if (image.getBitmap()[strobeColumn*width + strobeRow])
+	// {
+	// 	setLedMatrix(strobeRow+1,strobeColumn+1);
+	// }
+	
+	// if( strobeRow < 4)
+	// {
+	// 	strobeRow++;
+	// }
+	// else
+	// {
+	// 	strobeRow = 0;
+	// 	if( strobeColumn < 6)
+	// 	{
+	// 		strobeColumn++;
+	// 	}
+	// 	else
+	// 	{
+	// 		strobeColumn = 0;
+	// 	}
+	// }
     system_timer_event_after_us(600, id, LED_MATRIX_EVT_FRAME_TIMEOUT);
 }
 
@@ -299,9 +342,6 @@ void LEDMatrix:: setLedMatrix(int row,int column)
 
     pin_high->setDigitalValue(1);
     pin_low->setDigitalValue(0);
-
-    
-
 }
 
 void LEDMatrix::render()
