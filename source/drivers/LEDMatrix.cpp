@@ -141,7 +141,6 @@ void LEDMatrix::renderCharlie()
 	}
 	else
 	{
-		
 		row_index = 0;
 		if( col_index<(COLUMN_SIZE -1))
 		{
@@ -174,7 +173,7 @@ void LEDMatrix::renderCharlie()
 	// 		strobeColumn = 0;
 	// 	}
 	// }
-    system_timer_event_after_us(600, id, LED_MATRIX_EVT_FRAME_TIMEOUT);
+    system_timer_event_after_us(60, id, LED_MATRIX_EVT_FRAME_TIMEOUT);
 }
 
 void LEDMatrix:: setLedMatrix(int row,int column)
