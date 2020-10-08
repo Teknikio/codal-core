@@ -153,7 +153,7 @@ void LEDMatrix::renderCharlie()
 			col_index = 0;
 		}
 	}
-    if (image.getBitmap()[strobeColumn*width + strobeRow])
+    //if (image.getBitmap()[strobeColumn*width + strobeRow])
 	// {
 	// 	setLedMatrix(strobeRow+1,strobeColumn+1);
 	// }
