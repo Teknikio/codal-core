@@ -130,8 +130,9 @@ void LEDMatrix::onTimeoutEvent(Event)
 
 void LEDMatrix::renderCharlie()
 {
-	if(ledpattern[row_index][col_index] == 1)
-	{
+	//if(ledpattern[row_index][col_index] == 1)
+	if (image.getBitmap()[col_index*width + row_index])
+    {
 		setLedMatrix(row_index+1,col_index+1);
 	}
 	
@@ -152,7 +153,7 @@ void LEDMatrix::renderCharlie()
 			col_index = 0;
 		}
 	}
-    // if (image.getBitmap()[strobeColumn*width + strobeRow])
+    if (image.getBitmap()[strobeColumn*width + strobeRow])
 	// {
 	// 	setLedMatrix(strobeRow+1,strobeColumn+1);
 	// }
