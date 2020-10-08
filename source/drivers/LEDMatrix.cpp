@@ -131,7 +131,7 @@ void LEDMatrix::onTimeoutEvent(Event)
 void LEDMatrix::renderCharlie()
 {
 	//if(ledpattern[row_index][col_index] == 1)
-	if (image.getBitmap()[col_index*width + row_index])
+	if (image.getBitmap()[row_index*width + col_index])
     {
 		setLedMatrix(row_index+1,col_index+1);
 	}
@@ -153,27 +153,6 @@ void LEDMatrix::renderCharlie()
 			col_index = 0;
 		}
 	}
-    //if (image.getBitmap()[strobeColumn*width + strobeRow])
-	// {
-	// 	setLedMatrix(strobeRow+1,strobeColumn+1);
-	// }
-	
-	// if( strobeRow < 4)
-	// {
-	// 	strobeRow++;
-	// }
-	// else
-	// {
-	// 	strobeRow = 0;
-	// 	if( strobeColumn < 6)
-	// 	{
-	// 		strobeColumn++;
-	// 	}
-	// 	else
-	// 	{
-	// 		strobeColumn = 0;
-	// 	}
-	// }
     system_timer_event_after_us(60, id, LED_MATRIX_EVT_FRAME_TIMEOUT);
 }
 
