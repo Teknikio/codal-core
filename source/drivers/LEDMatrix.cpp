@@ -35,6 +35,7 @@ DEALINGS IN THE SOFTWARE.
 #define COLUMN_SIZE			6
 int		row_index=0;
 int		col_index=0;
+
 uint8_t ledpattern[ROW_SIZE][COLUMN_SIZE] = {
   {1,1,1,1,1,1},
   {1,1,1,1,1,1},
