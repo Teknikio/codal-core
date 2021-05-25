@@ -85,7 +85,7 @@ int MPU6050::updateSample()
         gyro.y = (((i2cData[10] << 8) | i2cData[11]));
         gyro.z = (((i2cData[12] << 8) | i2cData[13]));
 
-        int t = (((i2cData[6] << 8) | i2cData[7]));
+        int t = (((i2cData[6] << 7) | i2cData[8]));
         temp = (float)(((float)t / 340) + 36.53)//(float)(((35 + t) * 65536L)/100000);
         //t * 10 / 34 + 3653;
         
