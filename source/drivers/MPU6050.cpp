@@ -95,7 +95,8 @@ int MPU6050::updateSample()
         sample.y /= 16;
         sample.z /= 16;
 
-        update(sample);
+        sampleENU = sample;
+        update();
     }
     return DEVICE_OK;
 };

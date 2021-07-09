@@ -26,6 +26,14 @@ DEALINGS IN THE SOFTWARE.
 
 #if CONFIG_ENABLED(DEVICE_USB)
 
+// If DEVICE_USB_ENDPOINT_SHARING in and out endpoints will always get the same index.
+// This works on STM32F4. Can define on SAMD and elsewhere when tested.
+#if defined(DEVICE_USB_ENDPOINT_SHARING)
+#define NUM_ENDPOINTS(x) ((x) > 1 ? 1 : (x))
+#else
+#define NUM_ENDPOINTS(x) (x)
+#endif
+
 #include "ErrorNo.h"
 #include "CodalDmesg.h"
 #include "codal_target_hal.h"
@@ -174,8 +182,11 @@ const InterfaceInfo *CodalDummyUSBInterface::getInterfaceInfo()
     return &codalDummyIfaceInfo;
 }
 
-CodalUSB::CodalUSB()
+CodalUSB::CodalUSB(uint16_t id)
 {
+    // Store our identifiers.
+    this->id = id;
+    this->status = 0;
     usbInstance = this;
     endpointsUsed = 1; // CTRL endpoint
     ctrlIn = NULL;
@@ -365,7 +376,7 @@ int CodalUSB::add(CodalUSBInterface &interface)
 {
     usb_assert(!usb_configured);
 
-    uint8_t epsConsumed = interface.getInterfaceInfo()->allocateEndpoints;
+    uint8_t epsConsumed = NUM_ENDPOINTS(interface.getInterfaceInfo()->allocateEndpoints);
 
     if (endpointsUsed + epsConsumed > DEVICE_USB_ENDPOINTS)
         return DEVICE_NO_RESOURCES;
@@ -440,7 +451,7 @@ void CodalUSB::setupRequest(USBSetup &setup)
     LOG("SETUP Req=%x type=%x val=%x:%x idx=%x len=%d", setup.bRequest, setup.bmRequestType,
         setup.wValueH, setup.wValueL, setup.wIndex, setup.wLength);
 
-    int status = DEVICE_OK;
+    int transactionStatus = DEVICE_OK;
 
     // Standard Requests
     uint16_t wValue = (setup.wValueH << 8) | setup.wValueL;
@@ -496,7 +507,7 @@ void CodalUSB::setupRequest(USBSetup &setup)
             break;
         case USB_REQ_GET_DESCRIPTOR:
             LOG("GET DESC");
-            status = sendDescriptors(setup);
+            transactionStatus = sendDescriptors(setup);
             break;
         case USB_REQ_SET_DESCRIPTOR:
             LOG("SET DESC");
@@ -516,7 +527,7 @@ void CodalUSB::setupRequest(USBSetup &setup)
                 sendzlp();
             }
             else
-                status = DEVICE_NOT_SUPPORTED;
+                transactionStatus = DEVICE_NOT_SUPPORTED;
             break;
         }
     }
@@ -528,7 +539,7 @@ void CodalUSB::setupRequest(USBSetup &setup)
         case VENDOR_MS20:
             if (numWebUSBInterfaces == 0)
             {
-                status = DEVICE_NOT_SUPPORTED;
+                transactionStatus = DEVICE_NOT_SUPPORTED;
             }
             else
             {
@@ -557,17 +568,17 @@ void CodalUSB::setupRequest(USBSetup &setup)
 
         case VENDOR_WEBUSB:
             // this is the place for the WebUSB landing page, if we ever want to do that
-            status = DEVICE_NOT_IMPLEMENTED;
+            transactionStatus = DEVICE_NOT_IMPLEMENTED;
             break;
         }
     }
 #endif
     else
     {
-        status = interfaceRequest(setup, true);
+        transactionStatus = interfaceRequest(setup, true);
     }
 
-    if (status < 0)
+    if (transactionStatus < 0)
         stall();
 
     // sending response clears this - make sure we did
@@ -625,17 +636,18 @@ void CodalUSB::initEndpoints()
             iface->out = NULL;
         }
 
+        uint8_t numep = NUM_ENDPOINTS(info->allocateEndpoints);
+
         if (info->iface.numEndpoints > 0)
         {
             iface->in = new UsbEndpointIn(endpointCount, info->epIn.attr);
             if (info->iface.numEndpoints > 1)
             {
-                iface->out = new UsbEndpointOut(endpointCount + (info->allocateEndpoints - 1),
-                                                info->epIn.attr);
+                iface->out = new UsbEndpointOut(endpointCount + (numep - 1), info->epIn.attr);
             }
         }
 
-        endpointCount += info->allocateEndpoints;
+        endpointCount += numep;
     }
 
     usb_assert(endpointsUsed == endpointCount);

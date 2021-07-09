@@ -41,7 +41,8 @@ DEALINGS IN THE SOFTWARE.
 #define CODAL_SERIAL_STATUS_TX_IN_USE            0x02
 #define CODAL_SERIAL_STATUS_RX_BUFF_INIT         0x04
 #define CODAL_SERIAL_STATUS_TX_BUFF_INIT         0x08
-#define CODAL_SERIAL_STATUS_RXD                 0x10
+#define CODAL_SERIAL_STATUS_RXD                  0x10
+#define CODAL_SERIAL_STATUS_DEEPSLEEP            0x20
 
 
 namespace codal
@@ -49,8 +50,8 @@ namespace codal
     enum SerialMode
     {
         ASYNC,
-    	SYNC_SPINWAIT,
-    	SYNC_SLEEP
+        SYNC_SPINWAIT,
+        SYNC_SLEEP
     };
 
     enum SerialInterruptType
@@ -110,8 +111,6 @@ namespace codal
         int initialiseTx();
 
         void circularCopy(uint8_t *circularBuff, uint8_t circularBuffSize, uint8_t *linearBuff, uint16_t tailPosition, uint16_t headPosition);
-
-        void send(SerialMode mode = DEVICE_DEFAULT_SERIAL_MODE);
 
         int setTxInterrupt(uint8_t *string, int len, SerialMode mode);
 
@@ -253,7 +252,9 @@ namespace codal
           */
         int read(SerialMode mode = DEVICE_DEFAULT_SERIAL_MODE);
 
-        void printf(const char* format, ...);
+#if CONFIG_ENABLED(CODAL_PROVIDE_PRINTF)
+        virtual void printf(const char* format, ...);
+#endif
 
         int getChar(SerialMode mode);
 
@@ -527,6 +528,9 @@ namespace codal
         void unlockTx();
 
         ~Serial();
+        
+      private:
+        void writeNum(uint32_t n, bool full);
     };
 }
 

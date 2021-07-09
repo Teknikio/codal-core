@@ -76,6 +76,7 @@ namespace codal
         DISPLAY_MODE_GREYSCALE,
         DISPLAY_MODE_BLACK_AND_WHITE_LIGHT_SENSE,
         DISPLAY_MODE_CHARLIEPLEX
+        DISPLAY_MODE_GREYSCALE_LIGHT_SENSE
     };
 
     //
@@ -117,9 +118,9 @@ namespace codal
     };
 
     /**
-     * Class definition for CodalDisplay.
+     * Class definition for LEDMatrix.
      *
-     * A CodalDisplay represents the LED matrix array on the micro:bit.
+     * Represents an LED matrix array.
      */
     class LEDMatrix : public Display
     {
@@ -182,7 +183,7 @@ namespace codal
         /**
          * Constructor.
          *
-         * Create a software representation the micro:bit's 5x5 LED matrix.
+         * Create a software representation of a LED matrix.
          * The display is initially blank.
          *
          * @param map The mapping information that relates pin inputs/outputs to physical screen coordinates.

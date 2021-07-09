@@ -55,6 +55,7 @@ static Fiber *runQueue = NULL;                     // The list of runnable fiber
 static Fiber *sleepQueue = NULL;                   // The list of blocked fibers waiting on a fiber_sleep() operation.
 static Fiber *waitQueue = NULL;                    // The list of blocked fibers waiting on an event.
 static Fiber *fiberPool = NULL;                    // Pool of unused fibers, just waiting for a job to do.
+static Fiber *fiberList = NULL;                    // List of all active Fibers (excludes those in the fiberPool)
 
 /*
  * Scheduler wide flags
@@ -68,43 +69,6 @@ static EventModel *messageBus = NULL;
 }
 
 using namespace codal;
-
-static void get_fibers_from(Fiber ***dest, int *sum, Fiber *queue)
-{
-    if (queue && queue->prev) target_panic(30);
-    while (queue) {
-        if (*dest)
-            *(*dest)++ = queue;
-        (*sum)++;
-        queue = queue->next;
-    }
-}
-
-/**
-  * Return all current fibers.
-  *
-  * @param dest If non-null, it points to an array of pointers to fibers to store results in.
-  *
-  * @return the number of fibers (potentially) stored
-  */
-int codal::list_fibers(Fiber **dest)
-{
-    int sum = 0;
-
-    // interrupts might move fibers between queues, but should not create new ones
-    target_disable_irq();
-    get_fibers_from(&dest, &sum, runQueue);
-    get_fibers_from(&dest, &sum, sleepQueue);
-    get_fibers_from(&dest, &sum, waitQueue);
-    target_enable_irq();
-
-    // idleFiber is used to start event handlers using invoke(),
-    // so it may in fact have the user_data set if in FOB context
-    if (dest)
-        *dest++ = idleFiber;
-    sum++;
-    return sum;
-}
 
 /**
   * Utility function to add the currenty running fiber to the given queue.
@@ -129,8 +93,8 @@ void codal::queue_fiber(Fiber *f, Fiber **queue)
     // list, it results in fairer scheduling.
     if (*queue == NULL)
     {
-        f->next = NULL;
-        f->prev = NULL;
+        f->qnext = NULL;
+        f->qprev = NULL;
         *queue = f;
     }
     else
@@ -139,12 +103,12 @@ void codal::queue_fiber(Fiber *f, Fiber **queue)
         // We don't maintain a tail pointer to save RAM (queues are nrmally very short).
         Fiber *last = *queue;
 
-        while (last->next != NULL)
-            last = last->next;
+        while (last->qnext != NULL)
+            last = last->qnext;
 
-        last->next = f;
-        f->prev = last;
-        f->next = NULL;
+        last->qnext = f;
+        f->qprev = last;
+        f->qnext = NULL;
     }
 
     target_enable_irq();
@@ -164,23 +128,33 @@ void codal::dequeue_fiber(Fiber *f)
     // Remove this fiber fromm whichever queue it is on.
     target_disable_irq();
 
-    if (f->prev != NULL)
-        f->prev->next = f->next;
+    if (f->qprev != NULL)
+        f->qprev->qnext = f->qnext;
     else
-        *(f->queue) = f->next;
+        *(f->queue) = f->qnext;
 
-    if(f->next)
-        f->next->prev = f->prev;
+    if(f->qnext)
+        f->qnext->qprev = f->qprev;
 
-    f->next = NULL;
-    f->prev = NULL;
+    f->qnext = NULL;
+    f->qprev = NULL;
     f->queue = NULL;
 
     target_enable_irq();
 }
 
 /**
-  * Allocates a fiber from the fiber pool if availiable. Otherwise, allocates a new one from the heap.
+  * Provides a list of all active fibers.
+  * 
+  * @return A pointer to the head of the list of all active fibers.
+  */
+Fiber * codal::get_fiber_list()
+{
+    return fiberList;
+}
+
+/**
+  * Allocates a fiber from the fiber pool if available. Otherwise, allocates a new one from the heap.
   */
 Fiber *getFiberContext()
 {
@@ -218,6 +192,12 @@ Fiber *getFiberContext()
     #endif
 
     tcb_configure_stack_base(f->tcb, fiber_initial_stack_base());
+
+    // Add the new Fiber to the list of all fibers
+    target_disable_irq();
+    f->next = fiberList;
+    fiberList = f;
+    target_enable_irq();
 
     return f;
 }
@@ -297,7 +277,7 @@ void codal::scheduler_tick(Event evt)
     // Check the sleep queue, and wake up any fibers as necessary.
     while (f != NULL)
     {
-        t = f->next;
+        t = f->qnext;
 
         if (evt.timestamp >= f->context)
         {
@@ -333,7 +313,7 @@ void codal::scheduler_event(Event evt)
     // Check the wait queue, and wake up any fibers as necessary.
     while (f != NULL)
     {
-        t = f->next;
+        t = f->qnext;
 
         // extract the event data this fiber is blocked on.
         uint16_t id = f->context & 0xFFFF;
@@ -375,9 +355,12 @@ static Fiber* handle_fob()
     // it's time to spawn a new fiber...
     if (f->flags & DEVICE_FIBER_FLAG_FOB)
     {
-        // Allocate a TCB from the new fiber. This will come from the tread pool if availiable,
+        // Allocate a TCB from the new fiber. This will come from the tread pool if available,
         // else a new one will be allocated on the heap.
-        forkedFiber = getFiberContext();
+
+        if (!forkedFiber)
+            forkedFiber = getFiberContext();
+
          // If we're out of memory, there's nothing we can do.
         // keep running in the context of the current thread as a best effort.
         if (forkedFiber != NULL) {
@@ -679,7 +662,7 @@ Fiber *__create_fiber(uint32_t ep, uint32_t cp, uint32_t pm, int parameterised)
     if (ep == 0 || cp == 0)
         return NULL;
 
-    // Allocate a TCB from the new fiber. This will come from the fiber pool if availiable,
+    // Allocate a TCB from the new fiber. This will come from the fiber pool if available,
     // else a new one will be allocated on the heap.
     Fiber *newFiber = getFiberContext();
 
@@ -767,9 +750,9 @@ void codal::release_fiber(void)
 
     // limit the number of fibers in the pool
     int numFree = 0;
-    for (Fiber *p = fiberPool; p; p = p->next) {
-        if (!p->next && numFree > 3) {
-            p->prev->next = NULL;
+    for (Fiber *p = fiberPool; p; p = p->qnext) {
+        if (!p->qnext && numFree > 3) {
+            p->qprev->qnext = NULL;
             free(p->tcb);
             free((void *)p->stack_bottom);
             memset(p, 0, sizeof(*p));
@@ -782,6 +765,29 @@ void codal::release_fiber(void)
     // Reset fiber state, to ensure it can be safely reused.
     currentFiber->flags = 0;
     tcb_configure_stack_base(currentFiber->tcb, fiber_initial_stack_base());
+
+    // Remove the fiber from the list of active fibers
+    target_disable_irq();
+    if (fiberList == currentFiber)
+    {
+        fiberList = fiberList->next;
+    }
+    else
+    {
+        Fiber *p = fiberList;
+
+        while (p)
+        {
+            if (p->next == currentFiber)
+            {
+                p->next = currentFiber->next;
+                break;
+            }
+
+            p = p->next;
+        }
+    }
+    target_enable_irq();
 
     // Find something else to do!
     schedule();
@@ -846,6 +852,16 @@ int codal::scheduler_runqueue_empty()
 }
 
 /**
+  * Determines if any fibers are waiting for events.
+  *
+  * @return 1 if there are no fibers currently waiting for events; otherwise 0
+  */
+int codal::scheduler_waitqueue_empty()
+{
+    return (waitQueue == NULL);
+}
+
+/**
   * Calls the Fiber scheduler.
   * The calling Fiber will likely be blocked, and control given to another waiting fiber.
   * Call this function to yield control of the processor when you have nothing more to do.
@@ -877,6 +893,9 @@ void codal::schedule()
         // Store the full context of this fiber.
         save_context(forkedFiber->tcb, forkedFiber->stack_top);
 
+        // Indicate that we have completed spawning a new fiber
+        forkedFiber = NULL;
+
         // We may now be either the newly created thread, or the one that created it.
         // if the DEVICE_FIBER_FLAG_PARENT flag is still set, we're the old thread, so
         // restore the current fiber to its stored context and we're done.
@@ -895,7 +914,7 @@ void codal::schedule()
 
     else if (currentFiber->queue == &runQueue)
         // If the current fiber is on the run queue, round robin.
-        currentFiber = currentFiber->next == NULL ? runQueue : currentFiber->next;
+        currentFiber = currentFiber->qnext == NULL ? runQueue : currentFiber->qnext;
 
     else
         // Otherwise, just pick the head of the run queue.
@@ -973,7 +992,7 @@ void codal::idle()
         // because we enforce MESSAGE_BUS_LISTENER_IMMEDIATE for listeners placed
         // on the scheduler.
         fiber_flags &= ~DEVICE_SCHEDULER_IDLE;
-        target_wait_for_event();
+        target_scheduler_idle();
     }
 }
 
@@ -989,4 +1008,133 @@ void codal::idle_task()
         idle();
         schedule();
     }
+}
+
+/**
+  * Determines if deep sleep is pending.
+  *
+  * @return 1 if deep sleep is pending, 0 otherwise.
+  */
+int codal::fiber_scheduler_get_deepsleep_pending()
+{
+    return fiber_flags & DEVICE_SCHEDULER_DEEPSLEEP ? 1 : 0;
+}
+
+/**
+  * Flag if deep sleep is pending.
+  *
+  * @param penfing 1 if deep sleep is pending, 0 otherwise.
+  */
+void codal::fiber_scheduler_set_deepsleep_pending( int pending)
+{
+    if ( pending)
+        fiber_flags |= DEVICE_SCHEDULER_DEEPSLEEP;
+    else
+        fiber_flags &= ~DEVICE_SCHEDULER_DEEPSLEEP;
+}
+
+/**
+ * Create a new lock that can be used for mutual exclusion and condition synchronisation.
+ */
+FiberLock::FiberLock()
+{
+    queue = NULL;
+    locked = false;
+}
+
+/**
+ * Block the calling fiber until the lock is available
+ **/
+void FiberLock::wait()
+{
+    // If the scheduler is not running, then simply exit, as we're running monothreaded.
+    if (!fiber_scheduler_running())
+        return;
+
+    target_disable_irq();
+    int l = ++locked;
+    target_enable_irq();
+
+    if (l > 1)
+    {
+        // wait() is a blocking call, so if we're in a fork on block context,
+        // it's time to spawn a new fiber...
+        Fiber *f = handle_fob();
+
+        // Remove fiber from the run queue
+        dequeue_fiber(f);
+
+        // Add fiber to the sleep queue. We maintain strict ordering here to reduce lookup times.
+        queue_fiber(f, &queue);
+
+        // Check if we've been raced by something running in interrupt context.
+        // Note this is safe, as no IRQ can wait() and as we are non-preemptive, neither could any other fiber.
+        // It is possible that and IRQ has performed a notify() operation however.
+        // If so, put ourself back on the run queue and spin the scheduler (in case we performed a fork-on-block)
+        target_disable_irq();
+        if (locked < l)
+        {
+            // Remove fiber from the run queue
+            dequeue_fiber(f);
+
+            // Add fiber to the sleep queue. We maintain strict ordering here to reduce lookup times.
+            queue_fiber(f, &runQueue);
+        }
+        target_enable_irq();
+
+        // Finally, enter the scheduler.
+        schedule();
+    }
+}
+
+/**
+ * Release the lock, and signal to one waiting fiber to continue
+ */
+void FiberLock::notify()
+{
+    Fiber *f = queue;
+
+    if (f)
+    {
+        dequeue_fiber(f);
+        queue_fiber(f, &runQueue);
+    }
+
+    if (locked > 0)
+        locked--;
+}
+
+/**
+ * Release the lock, and signal to all waiting fibers to continue
+ */
+void FiberLock::notifyAll()
+{
+    Fiber *f = queue;
+
+    while (f)
+    {
+        dequeue_fiber(f);
+        queue_fiber(f, &runQueue);
+        f = queue;
+    }
+
+    locked = 0;
+}
+
+
+/**
+ * Determine the number of fibers currently blocked on this lock
+ */
+int FiberLock::getWaitCount()
+{
+    Fiber *f = queue;
+    int count = 0;
+
+    while (f)
+    {
+        count++;
+        f = f->qnext;
+    }
+
+    return count;
 }

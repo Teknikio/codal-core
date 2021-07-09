@@ -5,6 +5,8 @@
 #include "CodalComponent.h"
 #include "codal_target_hal.h"
 
+#define CODAL_LOWLEVELTIMER_STATUS_SLEEP_IRQENABLE    0x01
+
 namespace codal
 {
 
@@ -77,12 +79,18 @@ class LowLevelTimer : public CodalComponent
      * Constructor
      *
      * @param channel_count the number of capture compare registers the underlying hardware has.
-     *
-     * @returns DEVICE_OK on success.
      **/
     LowLevelTimer(uint8_t channel_count)
     {
         this->channel_count = channel_count;
+        this->timer_pointer = NULL;
+    }
+
+    /**
+     * Destructor
+     **/
+    virtual ~LowLevelTimer()
+    {
     }
 
     /**
@@ -140,7 +148,7 @@ class LowLevelTimer : public CodalComponent
      *
      * @param channel the channel to clear
      **/
-    virtual int clearCompare(uint8_t channel);
+    virtual int clearCompare(uint8_t channel) = 0;
 
     /**
      * Returns the counter value of the underlying hardware.
@@ -152,7 +160,7 @@ class LowLevelTimer : public CodalComponent
      *
      * @param speedKHz the speed of the timer in KHz.
      **/
-    virtual int setClockSpeed(uint32_t speedKHz);
+    virtual int setClockSpeed(uint32_t speedKHz) = 0;
 
     /**
      * Sets the resolution of the timer counter.

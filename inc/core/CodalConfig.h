@@ -130,7 +130,7 @@ DEALINGS IN THE SOFTWARE.
 // I/O Options
 //
 #ifndef DEVICE_COMPONENT_COUNT
-#define DEVICE_COMPONENT_COUNT               30
+#define DEVICE_COMPONENT_COUNT               100
 #endif
 //
 // Define the default mode in which the digital input pins are configured.
@@ -192,6 +192,10 @@ DEALINGS IN THE SOFTWARE.
 // If USB enabled, also enable WebUSB by default
 #ifndef DEVICE_WEBUSB
 #define DEVICE_WEBUSB                         1
+#endif
+
+#ifndef CODAL_PROVIDE_PRINTF
+#define CODAL_PROVIDE_PRINTF           1
 #endif
 
 //
