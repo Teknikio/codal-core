@@ -54,18 +54,6 @@ int MPU6050::whoAmI()
 
 int MPU6050::requestUpdate()
 {
-    updateSample();
-    return DEVICE_OK;
-}
-
-int MPU6050::getTemperature()
-{
-    updateSample();
-    return temp;
-}
-
-int MPU6050::updateSample()
-{
     int result;
     uint8_t i2cData[16];
 
@@ -99,7 +87,44 @@ int MPU6050::updateSample()
         update();
     }
     return DEVICE_OK;
-};
+}
+
+int MPU6050::getTemperature()
+{
+    int result;
+    uint8_t i2cData[16];
+
+    status |= DEVICE_COMPONENT_STATUS_IDLE_TICK;
+
+    if(int1.getDigitalValue() == 1) {
+        result = i2c.readRegister(address, 0x3B, (uint8_t *) i2cData, 14);
+
+        if (result != 0)
+            return DEVICE_I2C_ERROR;
+
+        sample.x = ((i2cData[0] << 8) | i2cData[1]);
+        sample.y = ((i2cData[2] << 8) | i2cData[3]);
+        sample.z = ((i2cData[4] << 8) | i2cData[5]);
+
+        gyro.x = (((i2cData[8] << 8) | i2cData[9]));
+        gyro.y = (((i2cData[10] << 8) | i2cData[11]));
+        gyro.z = (((i2cData[12] << 8) | i2cData[13]));
+
+        int t = (((i2cData[6] << 7) | i2cData[8]));
+        temp = (float)(((float)t / 340) + 36.53)/10;//(float)(((35 + t) * 65536L)/100000);
+        //t * 10 / 34 + 3653;
+        
+        //t * 10 / 34 + 3653;
+
+        sample.x /= 16;
+        sample.y /= 16;
+        sample.z /= 16;
+
+        sampleENU = sample;
+        update();
+    }
+    return temp;
+}
 
 void MPU6050::idleCallback()
 {
