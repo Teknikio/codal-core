@@ -211,43 +211,7 @@ class FXOS8700 : public Accelerometer, public Compass
           *
           * @return DEVICE_OK on success, DEVICE_I2C_ERROR if the accelerometer could not be configured.
           */
-        int configure();
-        
-        int getTemperature();
-        /**
-          * Reads the acceleration data from the accelerometer, and stores it in our buffer.
-          * This only happens if the accelerometer indicates that it has new data via int1.
-          *
-          * On first use, this member function will attempt to add this component to the
-          * list of fiber components in order to constantly update the values stored
-          * by this object.
-          *
-          * This technique is called lazy instantiation, and it means that we do not
-          * obtain the overhead from non-chalantly adding this component to fiber components.
-          *
-          * @return DEVICE_OK on success, DEVICE_I2C_ERROR if the read request fails.
-          */
-        int updateSample();
-
-        /**
-          * Attempts to set the sample rate of the accelerometer to the specified value (in ms).
-          *
-          * @param period the requested time between samples, in milliseconds.
-          *
-          * @return DEVICE_OK on success, DEVICE_I2C_ERROR is the request fails.
-          *
-          * @code
-          * // sample rate is now 20 ms.
-          * accelerometer.setPeriod(20);
-          * @endcode
-          *
-          * @note The requested rate may not be possible on the hardware. In this case, the
-          * nearest lower rate is chosen.
-          */
-        int setPeriod(int period);
-
         virtual int configure() override;
-
 
         /**
          * Reads the acceleration data from the accelerometer, and stores it in our buffer.
