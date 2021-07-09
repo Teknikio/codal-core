@@ -198,8 +198,6 @@ int FXOS8700::isDetected(I2C &i2c, uint16_t address)
     return i2c.readRegister(address, FXOS8700_WHO_AM_I) == FXOS8700_WHOAMI_VAL;
 }
 
-
-
 /**
   * Reads the sensor ata from the FXSO8700, and stores it in our buffer.
   * This only happens if the device indicates that it has new data via int1.
@@ -282,4 +280,3 @@ void FXOS8700::idleCallback()
 FXOS8700::~FXOS8700()
 {
 }
-
